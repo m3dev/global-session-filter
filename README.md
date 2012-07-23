@@ -89,6 +89,10 @@ It's also possible to add new datastore (e.g. Redis).
     <!-- Optional -->
     <!--
     <init-param>
+        <param-name>namespace</param-name>
+        <param-value>myapp</param-value>
+    </init-param>
+    <init-param>
         <param-name>sessionId</param-name>
         <param-value>__ssid__</param-value>
     </init-param>
