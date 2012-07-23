@@ -59,10 +59,18 @@ public class GlobalHttpSession implements HttpSession {
 
     public void save() {
         if (isValid()) {
+            // avoid expiration
+            String invalidateFlagKey = keyGenerator.generate(INVALIDATE_FLAG_KEY);
+            String creationTimeKey = keyGenerator.generate(CREATION_TIME_KEY);
+            store.set(invalidateFlagKey, getMaxInactiveInterval(), store.get(invalidateFlagKey));
+            store.set(creationTimeKey, getMaxInactiveInterval(), store.get(creationTimeKey));
+            // update attributes
             saveAttributesToStore();
+            // update lastAccessedTime
             if (!isNewlyCreated) {
                 updateLastAccessedTime();
             }
+
         } else {
             removeAttributesFromStore();
         }
@@ -162,7 +170,7 @@ public class GlobalHttpSession implements HttpSession {
         session.invalidate();
         attributes.clear();
 
-        setInvalidFlagOnSessionStore();
+        setInvalidFlagOnSessionStore(true);
         removeAttributesFromStore();
     }
 
@@ -264,8 +272,8 @@ public class GlobalHttpSession implements HttpSession {
     }
 
 
-    private void setInvalidFlagOnSessionStore() {
-        store.set(keyGenerator.generate(INVALIDATE_FLAG_KEY), getMaxInactiveInterval(), true);
+    private void setInvalidFlagOnSessionStore(boolean flag) {
+        store.set(keyGenerator.generate(INVALIDATE_FLAG_KEY), getMaxInactiveInterval(), flag);
     }
 
     private void saveAttributesToStore() {

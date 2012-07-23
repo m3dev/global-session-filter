@@ -4,7 +4,7 @@
 
     <groupId>com.m3</groupId>
     <artifactId>global-session-filter-memcached-demo</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -33,7 +33,7 @@
         <dependency>
             <groupId>com.m3</groupId>
             <artifactId>global-session-filter</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>spy</groupId>
