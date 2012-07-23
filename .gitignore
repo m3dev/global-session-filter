@@ -1,0 +1,17 @@
+.metadata
+.settings
+.classpath
+.project
+.idea
+*.iml
+*.ipr
+*.iws
+*.log
+bin/
+dist/
+lib_managed/
+project/boot/
+project/plugins/project/
+target/
+*.swp
+
