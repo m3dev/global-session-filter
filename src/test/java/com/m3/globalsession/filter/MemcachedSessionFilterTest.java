@@ -56,6 +56,7 @@ public class MemcachedSessionFilterTest {
         ServletTester tester = new ServletTester();
         FilterHolder filter = tester.addFilter(MemcachedSessionFilter.class, "/*", 0);
         filter.setInitParameter("memcachedServers", "memcached:11211");
+        filter.setInitParameter("excludeRegExp", "/excluded");
         tester.addServlet(RootServlet.class, "/");
         tester.start();
 
@@ -104,6 +105,15 @@ public class MemcachedSessionFilterTest {
         assertThat(setCookies2.size(), is(equalTo(1)));
         assertThat(setCookies2.get(0).matches("JSESSIONID=[^;]+;Path=/"), is(true));
         assertThat(response.getContent(), is(equalTo(content1)));
+
+        request.setURI("/excluded");
+        String rawRequest3 = request.generate();
+        log.debug(rawRequest3);
+
+        String responses3 = tester.getResponses(rawRequest3);
+        response.parse(responses3);
+        log.debug(responses3);
+        assertThat(response.getContent(), is(not(equalTo(content1))));
 
     }
 
