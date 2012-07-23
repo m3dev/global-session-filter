@@ -22,7 +22,9 @@ public class MemcachedSessionStore implements SessionStore {
         try {
             V value = (V) client.get(key);
             if (log.isDebugEnabled()) {
-                log.debug("Get: " + key + " -> " + value);
+                StackTraceElement stackTrace = new Throwable().getStackTrace()[1];
+                String method = stackTrace.getClassName() + "#" + stackTrace.getMethodName();
+                log.debug("___ GET [" + key + " -> " + value + "] (" + method + ")");
             }
             return value;
 
@@ -36,7 +38,9 @@ public class MemcachedSessionStore implements SessionStore {
     public <V extends Serializable> void set(String key, int expire, V value) {
 
         if (log.isDebugEnabled()) {
-            log.debug("Set (expire:" + expire + "): " + key + " -> " + value);
+            StackTraceElement stackTrace = new Throwable().getStackTrace()[1];
+            String method = stackTrace.getClassName() + "#" + stackTrace.getMethodName();
+            log.debug("$$$ SET (expire:" + expire + ") [" + key + " -> " + value + "] (" + method + ")");
         }
 
         try {
@@ -54,7 +58,7 @@ public class MemcachedSessionStore implements SessionStore {
     public void remove(String key) {
 
         if (log.isDebugEnabled()) {
-            log.debug("Delete: " + key);
+            log.debug("*** DELETE: [" + key + "]");
         }
 
         try {

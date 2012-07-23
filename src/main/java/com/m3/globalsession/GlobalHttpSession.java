@@ -17,15 +17,55 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuppressWarnings("deprecation")
 public class GlobalHttpSession implements HttpSession {
 
-    public static final String INVALIDATE_FLAG_KEY = "__invalidated__";
+    public static class Metadata implements Serializable {
+
+        private Boolean invalidated;
+        private Date creationTime;
+        private Date lastAccessedTime;
+
+        public Metadata() {
+        }
+
+        public Boolean getInvalidated() {
+            return invalidated;
+        }
+
+        public void setInvalidated(Boolean invalidated) {
+            this.invalidated = invalidated;
+        }
+
+        public Date getCreationTime() {
+            return creationTime;
+        }
+
+        public void setCreationTime(Date creationTime) {
+            this.creationTime = creationTime;
+        }
+
+        public Date getLastAccessedTime() {
+            return lastAccessedTime;
+        }
+
+        public void setLastAccessedTime(Date lastAccessedTime) {
+            this.lastAccessedTime = lastAccessedTime;
+        }
+
+        @Override
+        public String toString() {
+            return "com.m3.globalsession.GlobalHttpSession$Metadata(invalidated: " + getInvalidated()
+                    + ", creationTime: " + getCreationTime() + ", lastAccessedTime: " + getLastAccessedTime() + ")";
+        }
+
+    }
+
     public static final String ATTRIBUTES_KEY = "__attributes__";
-    public static final String CREATION_TIME_KEY = "__creationTime___";
-    public static final String LAST_ACCESSED_TIME_KEY = "__lastAccessedTime__";
+    public static final String METADATA_KEY = "__metadata__";
 
     private static final Logger log = LoggerFactory.getLogger(GlobalHttpSession.class);
 
     // should be Serializable type
     private ConcurrentHashMap<String, Object> attributes = new ConcurrentHashMap<String, Object>();
+    private Metadata metadata;
 
     private final String sessionId;
     private final SessionStore store;
@@ -41,8 +81,10 @@ public class GlobalHttpSession implements HttpSession {
 
     public boolean isValid() {
 
-        Object invalidated = store.get(keyGenerator.generate(INVALIDATE_FLAG_KEY));
-        boolean isNotInvalidated = invalidated != null && invalidated.toString().equals("false");
+        Metadata metadata = store.get(keyGenerator.generate(METADATA_KEY));
+        boolean isNotInvalidated = metadata != null &&
+                metadata.getInvalidated() != null &&
+                metadata.getInvalidated() == false;
 
         boolean isNotExpired = store.get(keyGenerator.generate(ATTRIBUTES_KEY)) != null;
 
@@ -59,18 +101,11 @@ public class GlobalHttpSession implements HttpSession {
 
     public void save() {
         if (isValid()) {
-            // avoid expiration
-            String invalidateFlagKey = keyGenerator.generate(INVALIDATE_FLAG_KEY);
-            String creationTimeKey = keyGenerator.generate(CREATION_TIME_KEY);
-            store.set(invalidateFlagKey, getMaxInactiveInterval(), store.get(invalidateFlagKey));
-            store.set(creationTimeKey, getMaxInactiveInterval(), store.get(creationTimeKey));
-            // update attributes
             saveAttributesToStore();
-            // update lastAccessedTime
             if (!isNewlyCreated) {
-                updateLastAccessedTime();
+                metadata.setLastAccessedTime(new Date());
             }
-
+            store.set(keyGenerator.generate(METADATA_KEY), getMaxInactiveInterval(), metadata);
         } else {
             removeAttributesFromStore();
         }
@@ -101,14 +136,17 @@ public class GlobalHttpSession implements HttpSession {
 
         setMaxInactiveInterval(timeoutMinutes * 60);
 
-        if (store.get(keyGenerator.generate(INVALIDATE_FLAG_KEY)) == null) {
+        metadata = store.get(keyGenerator.generate(METADATA_KEY));
+        if (metadata == null) {
             isNewlyCreated = true;
-            store.set(keyGenerator.generate(INVALIDATE_FLAG_KEY), getMaxInactiveInterval(), false);
-            store.set(keyGenerator.generate(CREATION_TIME_KEY), getMaxInactiveInterval(), new Date());
+            metadata = new Metadata();
+            metadata.setInvalidated(false);
+            metadata.setCreationTime(new Date());
+            store.set(keyGenerator.generate(METADATA_KEY), getMaxInactiveInterval(), metadata);
             store.set(keyGenerator.generate(ATTRIBUTES_KEY), getMaxInactiveInterval(), attributes);
         }
 
-        this.attributes = store.get(keyGenerator.generate(ATTRIBUTES_KEY));
+        attributes = store.get(keyGenerator.generate(ATTRIBUTES_KEY));
 
         if (log.isDebugEnabled()) {
             log.debug("A new GlobalHttpSession is created. (sessionId: " + sessionId + ", attributes: " + attributes + ")");
@@ -169,8 +207,7 @@ public class GlobalHttpSession implements HttpSession {
 
         session.invalidate();
         attributes.clear();
-
-        setInvalidFlagOnSessionStore(true);
+        metadata.setInvalidated(true);
         removeAttributesFromStore();
     }
 
@@ -215,21 +252,19 @@ public class GlobalHttpSession implements HttpSession {
 
     @Override
     public long getCreationTime() {
-        Date creationTime = (Date) store.get(keyGenerator.generate(CREATION_TIME_KEY));
-        if (creationTime == null) {
+        if (metadata == null || metadata.getCreationTime() == null) {
             return 0L;
         } else {
-            return creationTime.getTime();
+            return metadata.getCreationTime().getTime();
         }
     }
 
     @Override
     public long getLastAccessedTime() {
-        Date lastAccessedTime = (Date) store.get(keyGenerator.generate(LAST_ACCESSED_TIME_KEY));
-        if (lastAccessedTime == null) {
+        if (metadata == null || metadata.getLastAccessedTime() == null) {
             return 0L;
         } else {
-            return lastAccessedTime.getTime();
+            return metadata.getLastAccessedTime().getTime();
         }
     }
 
@@ -272,10 +307,6 @@ public class GlobalHttpSession implements HttpSession {
     }
 
 
-    private void setInvalidFlagOnSessionStore(boolean flag) {
-        store.set(keyGenerator.generate(INVALIDATE_FLAG_KEY), getMaxInactiveInterval(), flag);
-    }
-
     private void saveAttributesToStore() {
         store.set(keyGenerator.generate(ATTRIBUTES_KEY), getMaxInactiveInterval(), toMap());
     }
@@ -284,8 +315,17 @@ public class GlobalHttpSession implements HttpSession {
         store.remove(keyGenerator.generate(ATTRIBUTES_KEY));
     }
 
-    private void updateLastAccessedTime() {
-        store.set(keyGenerator.generate(LAST_ACCESSED_TIME_KEY), getMaxInactiveInterval(), new Date());
+    @Override
+    public String toString() {
+        StringBuilder attributes = new StringBuilder();
+        for (Object attr : Collections.list(getAttributeNames())) {
+            attributes.append(attr);
+            attributes.append(",");
+        }
+        return "com.m3.globalsession.GlobalHttpSession(id: " + getId() + ", attributes: ["
+                + attributes.toString().replaceFirst(",$", "")
+                + "], creationTime: " + getCreationTime() + ", lastAccessedTime: " + getLastAccessedTime()
+                + ", maxInactiveInterval: " + getMaxInactiveInterval() + ")";
     }
 
 }

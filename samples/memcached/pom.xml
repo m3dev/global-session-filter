@@ -33,7 +33,7 @@
         <dependency>
             <groupId>com.m3</groupId>
             <artifactId>global-session-filter</artifactId>
-            <version>0.1.1-SNAPSHOT</version>
+            <version>0.1.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>spy</groupId>
