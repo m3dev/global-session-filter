@@ -116,6 +116,10 @@ It's also possible to add new datastore (e.g. Redis).
         <param-name>sessionTimeout</param-name>
         <param-value>30</param-value>
     </init-param>
+    <init-param>
+        <param-name>excludeRegExp</param-name>
+        <param-value>(.+\.css)|(.+\.js)|(.+\.png)|(.+\.jpg)|(.+\.gif)</param-value>
+    </init-param>
     -->
 
 </filter>

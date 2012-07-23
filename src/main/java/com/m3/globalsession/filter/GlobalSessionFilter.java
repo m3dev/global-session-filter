@@ -29,6 +29,7 @@ public abstract class GlobalSessionFilter implements Filter {
         public static final String SECURE = "secure";
         public static final String HTTP_ONLY = "httpOnly";
         public static final String SESSION_TIMEOUT = "sessionTimeout";
+        public static final String EXCLUDE_REG_EXP = "excludeRegExp";
     }
 
     public static class RequestAttributeKey {
@@ -50,6 +51,8 @@ public abstract class GlobalSessionFilter implements Filter {
         if (settings.getNamespace() == null) {
             settings.setNamespace(GLOBAL_NAMESPACE);
         }
+
+        settings.setExcludeRegExp(getConfigValue(config, ConfigKey.EXCLUDE_REG_EXP));
 
         settings.setSessionIdKey(getConfigValue(config, ConfigKey.SESSION_ID));
         if (settings.getSessionIdKey() == null) {
@@ -137,12 +140,17 @@ public abstract class GlobalSessionFilter implements Filter {
 
         if (isGlobalSessionHttpRequest(_req)) {
 
-            // work if this filter is applied several times
-
             if (log.isDebugEnabled()) {
                 log.debug("GlobalSessionHttpRequest is already applied.");
             }
+            chain.doFilter(_req, _res);
 
+        } else if (settings.getExcludeRegExp() != null
+                && _req.getRequestURI().matches(settings.getExcludeRegExp())) {
+
+            if (log.isDebugEnabled()) {
+                log.debug("This URI is excluded. (URI: " + _req.getRequestURI() + ")");
+            }
             chain.doFilter(_req, _res);
 
         } else {
@@ -212,7 +220,7 @@ public abstract class GlobalSessionFilter implements Filter {
     }
 
     protected static boolean isGlobalSessionHttpRequest(HttpServletRequest req) {
-        if (log.isDebugEnabled())  {
+        if (log.isDebugEnabled()) {
             log.debug("isGlobalHttpRequest: " + req.getSession());
         }
         return req.getSession() instanceof GlobalHttpSession;

@@ -3,6 +3,8 @@ package com.m3.globalsession;
 public class GlobalSessionFilterSettings {
 
     private String namespace;
+    private String excludeRegExp;
+
     private String sessionIdKey;
     private String domain;
     private String path;
@@ -17,6 +19,14 @@ public class GlobalSessionFilterSettings {
 
     public void setNamespace(String namespace) {
         this.namespace = namespace;
+    }
+
+    public String getExcludeRegExp() {
+        return excludeRegExp;
+    }
+
+    public void setExcludeRegExp(String excludeRegExp) {
+        this.excludeRegExp = excludeRegExp;
     }
 
     public String getSessionIdKey() {
