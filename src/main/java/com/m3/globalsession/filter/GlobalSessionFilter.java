@@ -19,7 +19,7 @@ public abstract class GlobalSessionFilter implements Filter {
     private static Logger log = LoggerFactory.getLogger(GlobalSessionFilter.class);
 
     public static final String GLOBAL_NAMESPACE = "GLOBAL";
-    public static final String DEFAULT_SESSION_ID_NAME = "__ssid__";
+    public static final String DEFAULT_SESSION_ID_NAME = "__gsid__";
 
     public static class ConfigKey {
         public static final String NAMESPACE = "namespace";

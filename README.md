@@ -94,7 +94,7 @@ It's also possible to add new datastore (e.g. Redis).
     </init-param>
     <init-param>
         <param-name>sessionId</param-name>
-        <param-value>__ssid__</param-value>
+        <param-value>__gsid__</param-value>
     </init-param>
     <init-param>
         <param-name>domain</param-name>

@@ -78,7 +78,7 @@ public class MemcachedSessionFilterTest {
         assertThat(response.getStatus(), is(equalTo(200)));
         List<String> setCookies = Collections.list(response.getHeaderValues("Set-Cookie"));
         assertThat(setCookies.get(0).matches("JSESSIONID=[^;]+;Path=/"), is(true));
-        assertThat(setCookies.get(1).matches("__ssid__=[^;]+;Path=/"), is(true));
+        assertThat(setCookies.get(1).matches("__gsid__=[^;]+;Path=/"), is(true));
 
         // save the result
         String content1 = response.getContent();
@@ -136,7 +136,7 @@ public class MemcachedSessionFilterTest {
         assertThat(response.getStatus(), is(equalTo(200)));
         List<String> setCookies = Collections.list(response.getHeaderValues("Set-Cookie"));
         assertThat(setCookies.get(0).matches("JSESSIONID=[^;]+;Path=/"), is(true));
-        assertThat(setCookies.get(1).matches("__ssid__=[^;]+;Path=/"), is(true));
+        assertThat(setCookies.get(1).matches("__gsid__=[^;]+;Path=/"), is(true));
 
         // save the result
         String content1 = response.getContent();
