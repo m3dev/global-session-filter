@@ -197,8 +197,9 @@ public abstract class GlobalSessionFilter implements Filter {
             GlobalSessionHttpRequest _wrappedReq = createGlobalSessionRequest(_req, sessionIdValue);
             chain.doFilter(_wrappedReq, _res);
 
-            // save attributes to the specified SessionStore
-            _wrappedReq.getSession().save();
+            // update attributes, expiration
+            GlobalHttpSession session = _wrappedReq.getSession();
+            session.save();
         }
     }
 
