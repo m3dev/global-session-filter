@@ -220,9 +220,6 @@ public abstract class GlobalSessionFilter implements Filter {
     }
 
     protected static boolean isGlobalSessionHttpRequest(HttpServletRequest req) {
-        if (log.isDebugEnabled()) {
-            log.debug("isGlobalHttpRequest: " + req.getSession());
-        }
         return req.getSession() instanceof GlobalHttpSession;
     }
 

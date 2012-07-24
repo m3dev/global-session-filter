@@ -118,7 +118,7 @@ It's also possible to add new datastore (e.g. Redis).
     </init-param>
     <init-param>
         <param-name>excludeRegExp</param-name>
-        <param-value>(.+\.css)|(.+\.js)|(.+\.png)|(.+\.jpg)|(.+\.gif)</param-value>
+        <param-value>/.+\.(html|jpg|jpeg|png|gif|js|css|swf)</param-value>
     </init-param>
     -->
 

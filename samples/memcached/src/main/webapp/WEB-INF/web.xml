@@ -14,7 +14,7 @@
         <!-- Optional -->
         <init-param>
             <param-name>sessionId</param-name>
-            <param-value>__SSID__</param-value>
+            <param-value>__GSID__</param-value>
         </init-param>
         <init-param>
             <param-name>domain</param-name>
@@ -38,7 +38,7 @@
         </init-param>
         <init-param>
             <param-name>excludeRegExp</param-name>
-            <param-value>(.+\.css)|(.+\.js)|(.+\.png)|(.+\.jpg)|(.+\.gif)</param-value>
+            <param-value>/.+\.(html|jpg|jpeg|png|gif|js|css|swf)</param-value>
         </init-param>
     </filter>
 
