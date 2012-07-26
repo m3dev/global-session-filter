@@ -4,7 +4,7 @@
 
     <groupId>com.m3</groupId>
     <artifactId>global-session-filter</artifactId>
-    <version>0.1.4-SNAPSHOT</version>
+    <version>0.1.4</version>
     <packaging>jar</packaging>
 
     <name>shared-session-filter</name>
