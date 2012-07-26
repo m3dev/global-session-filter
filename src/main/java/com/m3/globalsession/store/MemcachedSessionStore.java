@@ -31,15 +31,24 @@ public class MemcachedSessionStore implements SessionStore {
         this.client = client;
     }
 
+    private static String getMethodCalls(Throwable t) {
+        StackTraceElement e1 = t.getStackTrace()[1];
+        StackTraceElement e2 = t.getStackTrace()[2];
+        StackTraceElement e3 = t.getStackTrace()[3];
+        return "(" + e1.getClassName() + "#" + e1.getMethodName()
+                + " <- " + e2.getClassName() + "#" + e2.getMethodName()
+                + " <- " + e3.getClassName() + "#" + e3.getMethodName() + ")";
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public <V extends Serializable> V get(String key) {
         try {
             V value = (V) client.get(key);
             if (log.isDebugEnabled()) {
-                StackTraceElement stackTrace = new Throwable().getStackTrace()[1];
-                String method = stackTrace.getClassName() + "#" + stackTrace.getMethodName();
-                log.debug("___ GET [" + key + " -> " + value + "] (" + method + ")");
+                Throwable t = new Throwable();
+                String message = "___ GET [" + key + " -> " + value + "]";
+                log.debug(message + getMethodCalls(t));
             }
             return value;
 
@@ -53,9 +62,9 @@ public class MemcachedSessionStore implements SessionStore {
     public <V extends Serializable> void set(String key, int expire, V value) {
 
         if (log.isDebugEnabled()) {
-            StackTraceElement stackTrace = new Throwable().getStackTrace()[1];
-            String method = stackTrace.getClassName() + "#" + stackTrace.getMethodName();
-            log.debug("$$$ SET (expire:" + expire + ") [" + key + " -> " + value + "] (" + method + ")");
+            Throwable t = new Throwable();
+            String message = "$$$ SET (expire:" + expire + ") [" + key + " -> " + value + "]";
+            log.debug(message + getMethodCalls(t));
         }
 
         try {
@@ -73,7 +82,9 @@ public class MemcachedSessionStore implements SessionStore {
     public void remove(String key) {
 
         if (log.isDebugEnabled()) {
-            log.debug("*** DELETE: [" + key + "]");
+            Throwable t = new Throwable();
+            String message = "*** DELETE: [" + key + "]";
+            log.debug(message + getMethodCalls(t));
         }
 
         try {

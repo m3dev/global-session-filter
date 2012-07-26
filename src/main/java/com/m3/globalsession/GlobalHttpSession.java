@@ -110,6 +110,10 @@ public class GlobalHttpSession implements HttpSession {
         return isNotInvalidated && isNotExpired;
     }
 
+    public void reloadAttributes() {
+        attributes = store.get(keyGenerator.generate(ATTRIBUTES_KEY));
+    }
+
     public ConcurrentHashMap<String, Object> toMap() {
         return attributes;
     }
@@ -228,7 +232,9 @@ public class GlobalHttpSession implements HttpSession {
 
     @Override
     public void removeAttribute(String name) {
+        reloadAttributes();
         attributes.remove(name);
+        saveAttributesToStore();
     }
 
     @Override
@@ -242,7 +248,9 @@ public class GlobalHttpSession implements HttpSession {
             removeAttribute(name);
         }
         if (value instanceof Serializable) {
+            reloadAttributes();
             attributes.put(name, (Serializable) value);
+            saveAttributesToStore();
         } else {
             String message = "The value should be an instance of java.io.Serializable. (" + value + ")";
             throw new IllegalArgumentException(message);

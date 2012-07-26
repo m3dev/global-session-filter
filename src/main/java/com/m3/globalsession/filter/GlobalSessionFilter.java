@@ -199,6 +199,7 @@ public abstract class GlobalSessionFilter implements Filter {
 
             // update attributes, expiration
             GlobalHttpSession session = _wrappedReq.getSession();
+            session.reloadAttributes(); // need reloading from the store to work with GlassFish
             session.save();
         }
     }
