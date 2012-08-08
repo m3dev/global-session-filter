@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Shared Session Filter sample with Memcached</title>
+    <title>Global Session Filter sample with Memcached</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -33,7 +33,7 @@
 
     <div class="container">
 
-<h1>shared-session-filter with Memcached</h1>
+<h1>global-session-filter with Memcached</h1>
 <hr/>
 
 <h3>#toString()</h3>

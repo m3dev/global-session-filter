@@ -7,9 +7,9 @@
     <version>0.1.4</version>
     <packaging>jar</packaging>
 
-    <name>shared-session-filter</name>
+    <name>global-session-filter</name>
     <description>Sessions across multiple Servlet containers by just applying a ServletFilter.</description>
-    <url>https://github.com/m3dev/shared-session-filter</url>
+    <url>https://github.com/m3dev/global-session-filter</url>
 
     <parent>
         <groupId>org.sonatype.oss</groupId>
@@ -30,9 +30,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:m3dev/shared-session-filter.git</connection>
-        <developerConnection>scm:git:git@github.com:m3dev/shared-session-filter.git</developerConnection>
-        <url>git@github.com:m3dev/shared-session-filter.git</url>
+        <connection>scm:git:git@github.com:m3dev/global-session-filter.git</connection>
+        <developerConnection>scm:git:git@github.com:m3dev/global-session-filter.git</developerConnection>
+        <url>git@github.com:m3dev/global-session-filter.git</url>
     </scm>
 
     <developers>
