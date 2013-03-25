@@ -110,8 +110,13 @@ public class GlobalHttpSession implements HttpSession {
         return isNotInvalidated && isNotExpired;
     }
 
-    public void reloadAttributes() {
-        attributes = store.get(keyGenerator.generate(ATTRIBUTES_KEY));
+    public synchronized void reloadAttributes() {
+        attributes.clear();
+
+        ConcurrentHashMap<String, Object> cachedAttributes = store.get(keyGenerator.generate(ATTRIBUTES_KEY));
+        if (cachedAttributes != null) {
+            attributes.putAll(cachedAttributes);
+        }
     }
 
     public ConcurrentHashMap<String, Object> toMap() {
@@ -164,8 +169,7 @@ public class GlobalHttpSession implements HttpSession {
             store.set(keyGenerator.generate(METADATA_KEY), getMaxInactiveInterval(), metadata);
             store.set(keyGenerator.generate(ATTRIBUTES_KEY), getMaxInactiveInterval(), attributes);
         }
-
-        attributes = store.get(keyGenerator.generate(ATTRIBUTES_KEY));
+        reloadAttributes();
 
         if (log.isDebugEnabled()) {
             log.debug("A new GlobalHttpSession is created. (sessionId: " + sessionId + ", attributes: " + attributes + ")");
