@@ -11,7 +11,7 @@ Session attributes and lifecycle will be managed by not a single Servlet contain
 
 It's also possible to add new datastore (e.g. Redis).
 
-* Memcached (via Spymemcached / Xmemcached)
+* Memcached (via Spymemcached)
 
 
 ## How to use
@@ -33,29 +33,12 @@ It's also possible to add new datastore (e.g. Redis).
     <dependency>
         <groupId>com.m3</groupId>
         <artifactId>global-session-filter</artifactId>
-        <version>[0.1,)</version>
+        <version>[0.2,)</version>
     </dependency>
     <dependency>
         <groupId>spy</groupId>
         <artifactId>spymemcached</artifactId>
         <version>[2.8,)</version>
-    </dependency>
-<dependencies>
-```
-
-### MemcachedSessionFilter with Xmemcached
-
-```xml
-<dependencies>
-    <dependency>
-        <groupId>com.m3</groupId>
-        <artifactId>global-session-filter</artifactId>
-        <version>[0.1,)</version>
-    </dependency>
-    <dependency>
-        <groupId>com.googlecode.xmemcached</groupId>
-        <artifactId>xmemcached</artifactId>
-        <version>[1.3,)</version>
     </dependency>
 <dependencies>
 ```
@@ -79,10 +62,6 @@ It's also possible to add new datastore (e.g. Redis).
     <init-param>
         <param-name>memcachedClientAdaptorClassName</param-name>
         <param-value>com.m3.globalsession.memcached.adaptor.SpymemcachedAdaptor</param-value>
-    </init-param>
-    <init-param>
-        <param-name>memcachedClientAdaptorClassName</param-name>
-        <param-value>com.m3.globalsession.memcached.adaptor.XmemcachedAdaptor</param-value>
     </init-param>
     -->
 

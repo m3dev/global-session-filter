@@ -15,7 +15,7 @@
  */
 package com.m3.globalsession.store;
 
-import com.m3.globalsession.memcached.MemcachedClient;
+import com.m3.memcached.facade.MemcachedClientPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,10 +25,10 @@ public class MemcachedSessionStore implements SessionStore {
 
     private static final Logger log = LoggerFactory.getLogger(MemcachedSessionStore.class);
 
-    private final MemcachedClient client;
+    private final MemcachedClientPool memcached;
 
-    public MemcachedSessionStore(MemcachedClient client) {
-        this.client = client;
+    public MemcachedSessionStore(MemcachedClientPool memcached) {
+        this.memcached = memcached;
     }
 
     private static String getMethodCalls(Throwable t) {
@@ -44,7 +44,7 @@ public class MemcachedSessionStore implements SessionStore {
     @SuppressWarnings("unchecked")
     public <V extends Serializable> V get(String key) {
         try {
-            V value = (V) client.get(key);
+            V value = (V) memcached.getClient().get(key);
             if (log.isDebugEnabled()) {
                 Throwable t = new Throwable();
                 String message = "___ GET [" + key + " -> " + value + "]";
@@ -60,7 +60,6 @@ public class MemcachedSessionStore implements SessionStore {
 
     @Override
     public <V extends Serializable> void set(String key, int expire, V value) {
-
         if (log.isDebugEnabled()) {
             Throwable t = new Throwable();
             String message = "$$$ SET (expire:" + expire + ") [" + key + " -> " + value + "]";
@@ -69,9 +68,9 @@ public class MemcachedSessionStore implements SessionStore {
 
         try {
             if (value == null) {
-                client.delete(key);
+                memcached.getClient().delete(key);
             } else {
-                client.set(key, expire, value);
+                memcached.getClient().set(key, expire, value);
             }
         } catch (Exception e) {
             log.debug("Failed to set value for " + key, e);
@@ -80,7 +79,6 @@ public class MemcachedSessionStore implements SessionStore {
 
     @Override
     public void remove(String key) {
-
         if (log.isDebugEnabled()) {
             Throwable t = new Throwable();
             String message = "*** DELETE: [" + key + "]";
@@ -88,7 +86,7 @@ public class MemcachedSessionStore implements SessionStore {
         }
 
         try {
-            client.delete(key);
+            memcached.getClient().delete(key);
         } catch (Exception e) {
             log.debug("Failed to delete value for " + key, e);
         }

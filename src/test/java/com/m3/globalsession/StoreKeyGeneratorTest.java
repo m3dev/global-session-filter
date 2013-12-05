@@ -3,7 +3,7 @@ package com.m3.globalsession;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class StoreKeyGeneratorTest {
 

@@ -5,7 +5,7 @@ import org.junit.Test;
 import javax.servlet.http.Cookie;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class CookieUtilTest {
 

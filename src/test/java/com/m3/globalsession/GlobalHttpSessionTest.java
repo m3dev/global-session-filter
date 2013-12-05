@@ -1,10 +1,10 @@
 package com.m3.globalsession;
 
 import com.m3.globalsession.filter.GlobalSessionFilter;
-import com.m3.globalsession.memcached.MemcachedClient;
-import com.m3.globalsession.memcached.MemcachedClientFactory;
 import com.m3.globalsession.store.MemcachedSessionStore;
 import com.m3.globalsession.store.SessionStore;
+import com.m3.memcached.facade.Configuration;
+import com.m3.memcached.facade.MemcachedClientPool;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,19 +16,26 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.mock;
+import static org.junit.Assert.*;
+import static org.mockito.BDDMockito.*;
 
 public class GlobalHttpSessionTest {
 
     InetSocketAddress address = new InetSocketAddress("memcached", 11211);
-    MemcachedClient memcached;
+
+    MemcachedClientPool getMemcached() throws Exception {
+        Configuration config = new Configuration();
+        config.setAddresses(Arrays.asList(new InetSocketAddress("memcached", 11211)));
+        config.setNamespace("foo");
+        return new MemcachedClientPool(config);
+    }
+
+    MemcachedClientPool memcached;
 
     @Before
     public void setUp() throws Exception {
         if (memcached == null) {
-            memcached = MemcachedClientFactory.create(Arrays.asList(address));
+            memcached = getMemcached();
         }
     }
 

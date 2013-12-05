@@ -15,11 +15,13 @@
  */
 package com.m3.globalsession.filter;
 
-import com.m3.globalsession.memcached.MemcachedClient;
-import com.m3.globalsession.memcached.MemcachedClientFactory;
-import com.m3.globalsession.memcached.adaptor.MemcachedClientAdaptor;
 import com.m3.globalsession.store.MemcachedSessionStore;
+import com.m3.memcached.facade.Configuration;
+import com.m3.memcached.facade.MemcachedClientPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.PreDestroy;
 import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -29,18 +31,11 @@ import java.util.List;
 
 public class MemcachedSessionFilter extends GlobalSessionFilter implements Filter {
 
+    private static final Logger log = LoggerFactory.getLogger(MemcachedSessionFilter.class);
+
     public static final String MEMCACHED_SERVERS_KEY = "memcachedServers";
 
-    public static final String CLIENT_ADAPTOR_CLASS_NAME = "memcachedClientAdaptorClassName";
-
-    protected Class<? extends MemcachedClientAdaptor> getMemcachedClientAdaptorClass(FilterConfig config) throws ClassNotFoundException {
-        String className = getConfigValue(config, CLIENT_ADAPTOR_CLASS_NAME);
-        if (className == null) {
-            // default: spymemcached
-            className = MemcachedClientAdaptor.Spymemcached;
-        }
-        return (Class<? extends MemcachedClientAdaptor>) Class.forName(className);
-    }
+    private MemcachedClientPool memcached;
 
     protected List<InetSocketAddress> getMemcachedServerAddresses(FilterConfig config) {
         List<InetSocketAddress> addresses = new ArrayList<InetSocketAddress>();
@@ -63,19 +58,37 @@ public class MemcachedSessionFilter extends GlobalSessionFilter implements Filte
 
     @Override
     public void init(FilterConfig config) throws ServletException {
-
         super.init(config);
-
-        List<InetSocketAddress> addresses = getMemcachedServerAddresses(config);
         try {
-            Class<? extends MemcachedClientAdaptor> adaptorClass = getMemcachedClientAdaptorClass(config);
-            MemcachedClient client = MemcachedClientFactory.create(settings.getNamespace(), addresses, adaptorClass);
-            store = new MemcachedSessionStore(client);
+            Configuration memcachedConfig = new Configuration();
+            memcachedConfig.setNamespace("global-session-filter");
+            memcachedConfig.setAddresses(getMemcachedServerAddresses(config));
+            memcached = new MemcachedClientPool(memcachedConfig);
+            store = new MemcachedSessionStore(memcached);
         } catch (Exception e) {
             String message = "Failed to instantiate MemcachedClient because of " + e.getMessage();
             throw new IllegalStateException(message, e);
         }
 
+    }
+
+    public void shutdownMemcachedClientPool() {
+        try {
+            if (memcached != null) {
+                memcached.shutdown();
+            }
+        } catch (Exception e) {
+            log.info("Failed to shutdown memcached client pool", e);
+        }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            super.finalize();
+        } finally {
+            shutdownMemcachedClientPool();
+        }
     }
 
 }

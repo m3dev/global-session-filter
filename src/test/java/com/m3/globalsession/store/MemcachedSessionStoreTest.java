@@ -1,18 +1,23 @@
 package com.m3.globalsession.store;
 
-import com.m3.globalsession.memcached.MemcachedClient;
-import com.m3.globalsession.memcached.MemcachedClientFactory;
+import com.m3.memcached.facade.Configuration;
+import com.m3.memcached.facade.MemcachedClientPool;
 import org.junit.Test;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class MemcachedSessionStoreTest {
 
-    InetSocketAddress address = new InetSocketAddress("memcached", 11211);
+    MemcachedClientPool getMemcached() throws Exception {
+        Configuration config = new Configuration();
+        config.setAddresses(Arrays.asList(new InetSocketAddress("memcached", 11211)));
+        config.setNamespace("foo");
+        return new MemcachedClientPool(config);
+    }
 
     @Test
     public void type() throws Exception {
@@ -21,15 +26,13 @@ public class MemcachedSessionStoreTest {
 
     @Test
     public void instantiation() throws Exception {
-        MemcachedClient client = MemcachedClientFactory.create(Arrays.asList(address));
-        MemcachedSessionStore instance = new MemcachedSessionStore(client);
+        MemcachedSessionStore instance = new MemcachedSessionStore(getMemcached());
         assertThat(instance, notNullValue());
     }
 
     @Test
     public void get_A$String() throws Exception {
-        MemcachedClient client = MemcachedClientFactory.create(Arrays.asList(address));
-        MemcachedSessionStore store = new MemcachedSessionStore(client);
+        MemcachedSessionStore store = new MemcachedSessionStore(getMemcached());
         // given
         String key = "MemcachedSessionStoreTest#get_A$String_" + System.currentTimeMillis();
         String value = "cached" + System.currentTimeMillis();
@@ -42,8 +45,7 @@ public class MemcachedSessionStoreTest {
 
     @Test
     public void set_A$String$int$Object_Expire() throws Exception {
-        MemcachedClient client = MemcachedClientFactory.create(Arrays.asList(address));
-        MemcachedSessionStore store = new MemcachedSessionStore(client);
+        MemcachedSessionStore store = new MemcachedSessionStore(getMemcached());
         // given
         String key = "MemcachedSessionStoreTest#set_A$String$int$Object_" + System.currentTimeMillis();
         int expire = 2;
@@ -58,8 +60,7 @@ public class MemcachedSessionStoreTest {
 
     @Test
     public void set_A$String$int$Object_NullValue() throws Exception {
-        MemcachedClient client = MemcachedClientFactory.create(Arrays.asList(address));
-        MemcachedSessionStore store = new MemcachedSessionStore(client);
+        MemcachedSessionStore store = new MemcachedSessionStore(getMemcached());
         // given
         String key = "MemcachedSessionStoreTest#set_A$String$int$Object_NullValue_" + System.currentTimeMillis();
         int expire = 100;
@@ -74,8 +75,7 @@ public class MemcachedSessionStoreTest {
 
     @Test
     public void remove_A$String() throws Exception {
-        MemcachedClient client = MemcachedClientFactory.create(Arrays.asList(address));
-        MemcachedSessionStore store = new MemcachedSessionStore(client);
+        MemcachedSessionStore store = new MemcachedSessionStore(getMemcached());
         // given
         String key = "MemcachedSessionStoreTest#remove_A$String_" + System.currentTimeMillis();
         // when

@@ -6,8 +6,8 @@ import org.junit.Test;
 import javax.servlet.http.HttpServletRequest;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
-import static org.mockito.BDDMockito.mock;
+import static org.junit.Assert.*;
+import static org.mockito.BDDMockito.*;
 
 public class GlobalSessionHttpRequestTest {
 
